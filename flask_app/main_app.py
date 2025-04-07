@@ -13,7 +13,7 @@ app.config['SECRET_KEY'] = "MegaSecretKeyYouHaveEverSeen228"
 db = SQLAlchemy(app)
 
 
-class Cities(db.Model):
+class Cities(db.Model):  # Наша таблица в БД
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     city = sqlalchemy.Column(sqlalchemy.String(50), nullable=False)
     visit_date = sqlalchemy.Column(db.DATE, nullable=False)
@@ -24,7 +24,7 @@ class Cities(db.Model):
         return {"id": self.id, "name": self.name, "email": self.email}
 
 
-class MainForm(FlaskForm):
+class MainForm(FlaskForm):  # Наша форма с заполняемыми полями
     city_name = StringField('Город', validators=[DataRequired()])
     visit_date = DateField('Дата посещения', validators=[DataRequired()])
     city_description = StringField('Описание')
@@ -35,7 +35,7 @@ with app.app_context():
     db.create_all()
 
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET'])  # Основная функция отображения нашей страницы
 def main():
     form = MainForm()
     all_visits = Cities.query.all()
@@ -43,6 +43,7 @@ def main():
                            form=form, items=all_visits)
 
 
+# При нажатии кнопки в нашей форме переходим сюда, добавляем запись в бд, перенаправляемся
 @app.route('/', methods=['POST'])
 def add_user():
     city = request.form['city_name']
@@ -54,6 +55,8 @@ def add_user():
     return redirect('/')
 
 
+# Сюда мы попадаем при нажатии крестика около записи, которые направляет нас сюда сразу с нужным id.
+# Остальное аналогично добавлению записи. Использован метод POST, так как данный подход будет работать только с ним :(
 @app.route('/<int:city_id>', methods=['POST'])
 def delete_user(city_id):
     city = Cities.query.get(city_id)
@@ -64,6 +67,7 @@ def delete_user(city_id):
     return redirect('/')
 
 
+# Попадаем при нажатии соответствующей кнопки, которая появляется только при наличии хотя бы одной записи
 @app.route('/delete_all', methods=['POST'])
 def delete_all():
     Cities.query.delete()
